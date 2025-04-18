@@ -53,4 +53,4 @@ def get_data(testing=False):
         inputs = tf.reshape(scaled_training_data, [-1, 365, 4320])
     return inputs, labels
 
-# print(get_data(testing=False))
+print(get_data(testing=False))
