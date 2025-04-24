@@ -103,12 +103,12 @@ def main():
         # Print all MAEs sorted from best to worst
         print("\n--- Model Mean Absolute Error Comparison ---")
         for name, mae in sorted(results.items(), key=lambda x: x[1]):
-            print(f"{name.upper()}: MAE = {mae:.3f}")
+            print(f"{name.upper()}: MAE = {mae:.1f}")
 
         # Print all Direction Accuracies sorted from best to worst
         print("\n--- Model Direction Accuracy Comparison ---")
         for name, acc in sorted(direction_scores.items(), key=lambda x: -x[1]):
-            print(f"{name.upper()}: Direction Accuracy = {acc:.2%}")
+            print(f"{name.upper()}: Direction Accuracy = {acc:.1%}")
 
     else:
         # Run only the specified model
