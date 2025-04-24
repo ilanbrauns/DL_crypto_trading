@@ -99,4 +99,4 @@ def get_data(testing=False, prediction_distance=1440):
     # Get the last close price in each input sequence to use for statistics
     start_close = [close_prices[(i + 1) * batch_size - 1] for i in range(len(valid_y_indices))]
 
-    return X, y_scaled.astype(np.float32), target_scaler, start_close
+    return X, y_scaled.astype(np.float32), target_scaler, np.array(start_close)
