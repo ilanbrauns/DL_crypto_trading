@@ -36,11 +36,11 @@ def create_batches(data, batch_size=144):
         Array: Input sequences X
     """
     X = []
-    for i in range(len(data) - batch_size):
+    for i in range(0, len(data) - batch_size + 1, batch_size):
         X.append(data[i:i + batch_size])
     return np.array(X)
 
-def get_data(testing=False, downsample_factor=10, prediction_distance=1):
+def get_data(testing=False, prediction_distance=1440):
     """
     Preprocesses and returns the training or testing dataset
 
@@ -63,14 +63,11 @@ def get_data(testing=False, downsample_factor=10, prediction_distance=1):
     filepath = testing_data_filepath if testing else training_data_filepath
     df = pd.read_csv(filepath)
 
-    # Shrink the data by only selecting certain rows from dataset
-    df = df.iloc[::downsample_factor]
-
     # Select relevant features for model input from dataset
     features = ["open", "high", "low", "close", "Volume BTC", "Volume USD"]
     df = df[features].dropna().reset_index(drop=True)
 
-    batch_size = 144
+    batch_size = 360
 
     # Normalize all input features to linear scale for input
     feature_scaler = MinMaxScaler()
@@ -84,16 +81,22 @@ def get_data(testing=False, downsample_factor=10, prediction_distance=1):
 
     # Save closing prices for statistics presentation
     close_prices = df["close"].values
-    num_samples = len(X)
 
-    # Generate target values, which are future prices
-    y_raw = close_prices[batch_size + prediction_distance - 1 : batch_size + prediction_distance - 1 + num_samples]
+    # Get labels from price vector by matchign spacing to input dataset batch creation
+    y_indices = [(i + 1) * batch_size - 1 + prediction_distance for i in range(len(X))]
+    valid_y_indices = [i for i in y_indices if i < len(close_prices)]
+
+    # Remove excess input data
+    X = X[:len(valid_y_indices)]
+
+    # Generate labels, which are future prices
+    y_raw = close_prices[valid_y_indices]
 
     # Fit a separate scaler just for targets, returned to inverse transform to present final prices
     target_scaler = MinMaxScaler()
     y_scaled = target_scaler.fit_transform(y_raw.reshape(-1, 1)).flatten()
 
     # Get the last close price in each input sequence to use for statistics
-    start_close = close_prices[batch_size - 1 : batch_size - 1 + num_samples]
+    start_close = [close_prices[(i + 1) * batch_size - 1] for i in range(len(valid_y_indices))]
 
     return X, y_scaled.astype(np.float32), target_scaler, start_close

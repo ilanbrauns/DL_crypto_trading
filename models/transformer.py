@@ -38,7 +38,7 @@ class Transformer(Model):
         self.model = tf.keras.Model(inputs=inputs, outputs=outputs)
         self.model.compile(optimizer='adam', loss='mse', metrics=['mae'])
 
-    def train(self, X, y, epochs=10, batch_size=32):
+    def train(self, X, y, epochs=2, batch_size=32):
         return self.model.fit(X, y, epochs=epochs, batch_size=batch_size)
 
     def predict(self, X):
